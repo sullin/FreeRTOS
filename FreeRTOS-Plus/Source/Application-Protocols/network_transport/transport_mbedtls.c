@@ -632,7 +632,7 @@ TlsTransportStatus_t TLS_FreeRTOS_Connect( NetworkContext_t * pNetworkContext,
 {
     TlsTransportParams_t * pTlsTransportParams = NULL;
     TlsTransportStatus_t returnStatus = TLS_TRANSPORT_SUCCESS;
-    BaseType_t socketStatus = 0;
+    BaseType_t socketStatus = -1;
 
     if( ( pNetworkContext == NULL ) ||
         ( pNetworkContext->pParams == NULL ) ||
@@ -697,10 +697,12 @@ TlsTransportStatus_t TLS_FreeRTOS_Connect( NetworkContext_t * pNetworkContext,
     /* Clean up on failure. */
     if( returnStatus != TLS_TRANSPORT_SUCCESS )
     {
-        if( ( pNetworkContext != NULL ) && ( pNetworkContext->pParams != NULL ) )
+        if( ( pNetworkContext != NULL ) && ( pTlsTransportParams != NULL ) )
         {
             sslContextFree( &( pTlsTransportParams->sslContext ) );
-
+        }
+        if( socketStatus == 0 )
+        {
             TCP_Sockets_Disconnect(pTlsTransportParams->tcpSocket);
         }
     }
